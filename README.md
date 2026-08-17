@@ -58,7 +58,7 @@ agri_price_spider/
 └── README.md
 ```
 
-## ⚙️ 环境部署
+## 环境部署
 ### 1. 安装依赖
 ```bash
 pip install pandas playwright pymongo pytest python-dotenv openpyxl matplotlib seaborn wordcloud jieba
@@ -92,6 +92,8 @@ pytest tests/ -v
 - `农产品价格分析报告_时间戳.xlsx`：综合分析报表
 - `*.png`：全部可视化图表
 - `项目运行日志.log`：完整运行日志
+> assets/output 为程序运行时自动生成目录，首次运行代码会自动创建。
+
 
 ## 项目亮点
 1. 代码采用模块化划分，爬虫、数据处理、数据库操作功能分离，方便后续修改与拓展；敏感配置存放于.env文件，消除硬编码。
