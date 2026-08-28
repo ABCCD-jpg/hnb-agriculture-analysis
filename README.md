@@ -1,8 +1,19 @@
 # 农产品行情数据采集与分析系统
 本项目为课程设计练手项目，整合爬虫、数据清洗、数据库存储与可视化相关知识，搭建简易数据采集分析完整流程，适合 Python 入门练习。
 
-> 📷 效果图（后续运行项目截图上传后补充）
-> GUI客户端界面 | 价格可视化图表 | 自动生成Excel分析报表
+## 📸 运行效果展示
+### GUI客户端主界面
+![GUI界面](assets/demo/gui.png)
+
+### 可视化分析图表
+- 多品类农产品均价对比
+![均价柱状对比图](assets/demo/bar_avg_price.png)
+- 品类价格波动箱线图（异常价格检测）
+![箱线图](assets/demo/box_price.png)
+- 搜索结果‑产品名称词云
+![产品词云](assets/demo/wordcloud.png)
+
+> 完整生成图表、Excel报表、原始数据文件存放于本地运行目录 `assets/output`，属于程序运行产物，未上传至仓库。
 
 ## 技术栈
 Python、Playwright、Pandas、NumPy、MongoDB、Tkinter、Matplotlib、Seaborn、Openpyxl、Pytest、python-dotenv
