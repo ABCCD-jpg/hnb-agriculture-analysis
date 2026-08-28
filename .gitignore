@@ -1,17 +1,11 @@
 # 敏感环境配置，禁止上传
 .env
-
 # Python 缓存文件
 __pycache__/
 *.pyc
 *.pyo
-
 # 程序运行产出（报表、图片、日志）
-assets/output/*.xlsx
-assets/output/*.png
-assets/output/*.csv
-assets/output/*.log
-
+assets/output/*
 # 系统多余文件
 .DS_Store
 Thumbs.db
