@@ -13,19 +13,18 @@ import pymongo
 import pandas as pd
 from config.settings import MONGO_URI
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def mongo_test_collection():
-    """MongoDB测试集合，隔离正式业务数据"""
+    """MongoDB测试集合，每个测试独立，避免数据污染"""
     client = pymongo.MongoClient(MONGO_URI)
     db = client["agri_price_test"]  # 独立测试库，不要和业务库重名
     coll = db["price_data"]
-
     coll.delete_many({})
     yield coll
     coll.delete_many({})
     client.close()
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def mock_raw_data():
     """模拟爬虫原始数据，严格匹配你CSV的中文表头"""
     raw_list = [
@@ -35,5 +34,4 @@ def mock_raw_data():
         # 增加一条重复数据，用来测试去重逻辑
         {"产品名称": "草莓", "品类":"草莓", "价格(元/斤)": 6.5, "产地": "无锡农贸市场", "省份": "江苏", "发布日期":"2026-08-10", "涨跌幅(%)":0},
     ]
-    df = pd.DataFrame(raw_list)
-    return df
+    return pd.DataFrame(raw_list)

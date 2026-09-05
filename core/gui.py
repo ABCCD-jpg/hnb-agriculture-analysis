@@ -1,27 +1,17 @@
 import sys
 from pathlib import Path
-# 当前文件core/gui.py，往上跳一层 = 项目根目录agri_price_spider
-project_root = Path(__file__).parent
+# 当前文件core/gui.py，.parent=/core,.parent.parent= 项目根目录agri_price_spider
+project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext, messagebox
 import threading
 import queue
-import os
-import random
-import time
 import logging
-import pandas as pd
-from config import logger, SAVE_PATH, EXCEL_REPORT_PATH
-from core.spider import crawl_category
-from core.database import insert_mongo_data
-from core.analysis import data_preprocessing, run_full_statistics
-from core.visualizer import generate_visualizations
-from datetime import datetime
-from config.settings import OUTPUT_DIR
-# 修复导入函数名
-from .excel_report import generate_excel_report
+
+from config import logger
+from pipeline import run_pipeline
 
 # 日志队列处理器
 class QueueHandler(logging.Handler):
@@ -179,47 +169,35 @@ class CrawlerApp:
         thread.start()
 
     def run_task(self, keywords, max_page):
+        """执行任务（调用pipeline）"""
         try:
-            all_data = []
-            for kw in keywords:
-                data = crawl_category(kw, max_page)
-                all_data.extend(data)
-                if kw != keywords[-1]:
-                    cool_time = random.uniform(20, 35)
-                    logger.info(f"品类 {kw} 爬取结束，冷却 {cool_time:.1f}s 后继续...")
-                    time.sleep(cool_time)
-            if not all_data:
-                logger.error("未抓取到任何有效行情数据")
-                self.status_var.set("🔴 任务失败：无数据")
-                messagebox.showerror("错误", "本次未获取到任何有效数据！")
-                return
-            df_raw = pd.DataFrame(all_data)
-            df_raw.to_csv(SAVE_PATH, index=False, encoding='utf-8-sig')
-            logger.info(f"原始CSV已保存：{SAVE_PATH}")
-            # 入库
-            insert_mongo_data(all_data)
-            logger.info(f"{len(all_data)} 条原始数据写入MongoDB")
-            # 清洗分析
-            df_clean = data_preprocessing(df_raw)
-            df_clean['品类'] = pd.Categorical(df_clean['品类'], categories=keywords, ordered=True)
-            df_clean = df_clean.sort_values('品类')
-            stats = run_full_statistics(df_clean, keywords)
-            # 绘图
-            generate_visualizations(df_clean)
-            # 带时间戳Excel
-            now_str = datetime.now().strftime("%Y%m%d_%H%M%S")
-            report_path = os.path.join(OUTPUT_DIR, f"农产品价格分析报告_{now_str}.xlsx")
-            generate_excel_report(df_clean, stats, report_path)
-            logger.info("✅ 全流程采集、清洗、绘图、报表全部完成！")
-            self.status_var.set("🟢 任务完成，结果已保存")
-            messagebox.showinfo(
-                "查询完成",
-                "数据采集与分析全部完成！\n文件输出路径：assets/output\n包含CSV、Excel、6张可视化图表"
-            )
+            # 调用统一的pipeline
+            result = run_pipeline(keywords, max_page)
+
+            # 根据结果更新GUI
+            self.root.after(0, self._on_task_complete, result)
+
         except Exception as e:
-            logger.error(f"任务执行异常：{str(e)}", exc_info=True)
-            self.status_var.set("🔴 任务执行失败")
-            messagebox.showerror("运行报错", f"程序执行失败：\n{str(e)}")
-        finally:
-            self.running = False
-            self.start_btn.config(state=tk.NORMAL, bg="#0066CC")
+            logger.error(f"任务异常：{str(e)}", exc_info=True)
+            self.root.after(0, self._on_task_error, str(e))
+
+    def _on_task_complete(self, result):
+        """任务完成回调"""
+        self.running = False
+        self.start_btn.config(state=tk.NORMAL, bg="#0066CC")
+
+        if result['success']:
+            self.status_var.set(f"✅ 任务完成，共 {result['total_records']} 条数据")
+
+            # 构建提示信息
+            msg = f"数据采集与分析完成！\n\n"
+            msg += f"有效数据：{result['total_records']} 条\n"
+            msg += f"报告路径：{result['report_path']}\n"
+
+            if result['failed_categories']:
+                msg += f"\n注意：以下品类失败：{', '.join(result['failed_categories'])}"
+
+            messagebox.showinfo("任务完成", msg)
+        else:
+            self.status_var.set("🔴 任务失败")
+            messagebox.showerror("任务失败", result['error_message'])

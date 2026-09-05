@@ -2,17 +2,24 @@ import re
 import pandas as pd
 import unicodedata
 import openpyxl
-from agri_price_spider.config import PROVINCE_LIST
+from config.settings import PROVINCE_LIST
 
 #清洗价格字段，转为float类型，如果无法转换则返回None
 def clean_price(price_text: str) -> float | None:
+    """
+       清洗价格文本，提取数字部分
+       如果遇到价格区间（如"3.5-4.5元/斤"），则取区间的下限作为价格
+       如果价格文本为空或无法转换为数字，则返回None
+       """
     if pd.isna(price_text) or str(price_text).strip() == '':
         return None
-    num_str = re.sub(r'[^\d.]', '', str(price_text))
-    try:
-        return float(num_str)
-    except (ValueError, TypeError):
-        return None
+    # 先用正则提取第一个数字（包括小数点）
+    # 比如 "3.5-4.5元/斤" 会匹配到 "3.5"
+    match = re.search(r'\d+(\.\d+)?', str(price_text))
+    if match:
+        return float(match.group())
+
+    return None
 
 #从预定义列表PROVINCE_LIST提取省份信息，如果未匹配到，则返回'未知'
 def extract_province(origin_text: str) -> str:
@@ -25,13 +32,15 @@ def extract_province(origin_text: str) -> str:
 
 #清洗涨跌幅
 def clean_change(change_text: str) -> float | None:
+    # 清洗涨跌幅字段，转为float类型，如果无法转换则返回None
     if pd.isna(change_text) or str(change_text).strip() in ['-', '', '持平']:
-        return 0.0
+        return None
+
     change_str = re.sub(r'[^\d.-]', '', str(change_text))
     try:
         return float(change_str)
     except (ValueError, TypeError):
-        return 0.0
+        return None
 
 #计算表格列宽，纯计算不能调整
 def display_width(text: str) -> int:

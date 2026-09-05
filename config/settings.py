@@ -31,12 +31,16 @@ MAX_RETRY = 3
 OUTPUT_DIR = 'assets/output'
 # 消除竞争条件，移除if判断
 # 使用exist_ok=True避免并发场景文件夹创建产生竞争条件
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
 SAVE_PATH = 'assets/output/惠农网农产品行情数据.csv'
 EXCEL_REPORT_PATH = 'assets/output/农产品价格分析报告.xlsx'
 LOG_PATH = 'assets/output/项目运行日志.log'
 DEBUG = True
+
+# 确保输出目录存在（使用绝对路径）
+from pathlib import Path
+_BASE_DIR = Path(__file__).parent.parent
+_OUTPUT_DIR_ABS = _BASE_DIR / OUTPUT_DIR
+_OUTPUT_DIR_ABS.mkdir(parents=True, exist_ok=True)
 
 # ========== 2. 爬虫固定配置 ==========
 HANGQING_HOME = 'https://www.cnhnb.com/hangqing/'
@@ -71,8 +75,8 @@ def get_mongo_collection():
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.FileHandler(LOG_PATH, encoding='utf-8'), logging.StreamHandler()]
-)
+    handlers=[logging.FileHandler(_BASE_DIR / LOG_PATH, encoding='utf-8'), logging.StreamHandler()]
+    )
 logger = logging.getLogger(__name__)
 logging.getLogger("jieba").setLevel(logging.WARNING)
 

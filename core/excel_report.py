@@ -8,7 +8,7 @@ import os
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.drawing.image import Image as XLImage
 from config import logger
-from utils import auto_fit_columns
+from utils.data_tools import auto_fit_columns
 
 
 
