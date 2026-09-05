@@ -55,17 +55,22 @@ agri_price_spider/
 │   ├── visualizer.py          # Matplotlib可视化绘图
 │   ├── excel_report.py        # 格式化Excel报表生成
 │   └── gui.py                 # Tkinter桌面客户端
+├── config/
+│   ├── settings.py            # 全局配置、日志、常量、环境变量读取
+│   └── selectors.py           # 页面选择器配置（网站改版只需改这里）
+├── pipeline.py                # 核心流程编排（爬取→清洗→分析→报告）
 ├── tests/
 │   ├── conftest.py            # Pytest全局夹具、测试Mongo库
-│   ├── test_tools.py          # 工具单元测试
-│   └── test_integration.py    # 端到端集成测试
+│   ├── test_data_tools.py     # 工具函数单元测试
+│   ├── test_analysis_business.py  # 异常值过滤、统计准确性测试
+│   ├── test_pipeline.py       # 流程容错测试
+│   └── test_integration.py    # 数据库集成测试
 ├── utils/
 │   └── data_tools.py          # 字符串清洗、省份提取工具函数
-├── config/
-│   └── settings.py            # 全局配置、日志、常量、环境变量读取
-├── .env                       # 环境变量（Mongo连接、Cookie等敏感信息）
-├── .gitignore
 ├── main.py                    # 程序入口，启动GUI
+├── requirements.txt           # 依赖列表
+├── .gitignore
+├── .env                       # 环境变量（Mongo连接、Cookie等敏感信息）
 └── README.md
 ```
 
