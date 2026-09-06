@@ -1,5 +1,5 @@
 # 农产品行情数据采集与分析系统
-本项目为课程设计练手项目，整合爬虫、数据清洗、数据库存储与可视化相关知识，搭建简易数据采集分析完整流程，适合 Python 入门练习。
+本项目为数据采集与分析实战项目，整合爬虫、数据清洗、数据库存储与可视化技术，搭建完整的农产品行情数据处理流程。
 
 ## 📸 运行效果展示
 ### GUI客户端主界面
@@ -49,6 +49,7 @@ agri_price_spider/
 ├── assets/
 │   └── output/                # CSV、Excel、图片、运行日志输出目录
 ├── core/
+│   ├── __init__.py
 │   ├── spider.py              # Playwright爬虫核心
 │   ├── database.py            # MongoDB数据库操作封装
 │   ├── analysis.py            # 数据清洗、统计分析函数
@@ -56,21 +57,24 @@ agri_price_spider/
 │   ├── excel_report.py        # 格式化Excel报表生成
 │   └── gui.py                 # Tkinter桌面客户端
 ├── config/
+│   ├── __init__.py
 │   ├── settings.py            # 全局配置、日志、常量、环境变量读取
 │   └── selectors.py           # 页面选择器配置（网站改版只需改这里）
 ├── pipeline.py                # 核心流程编排（爬取→清洗→分析→报告）
 ├── tests/
+│   ├── __init__.py
 │   ├── conftest.py            # Pytest全局夹具、测试Mongo库
 │   ├── test_data_tools.py     # 工具函数单元测试
 │   ├── test_analysis_business.py  # 异常值过滤、统计准确性测试
 │   ├── test_pipeline.py       # 流程容错测试
 │   └── test_integration.py    # 数据库集成测试
 ├── utils/
+│   ├── __init__.py
 │   └── data_tools.py          # 字符串清洗、省份提取工具函数
 ├── main.py                    # 程序入口，启动GUI
 ├── requirements.txt           # 依赖列表
 ├── .gitignore
-├── .env                       # 环境变量（Mongo连接、Cookie等敏感信息）
+├── .env.example               # 环境变量示例（敏感信息不入库）
 └── README.md
 ```
 
@@ -116,7 +120,7 @@ pytest tests/ -v
 2. 完善的异常容错机制，处理网络报错、空白页面、登录拦截、分页失效等场景。
 3. 使用统计学3σ方法识别异常价格，相比固定阈值过滤更加科学合理。
 4. 支持离线分析：可直接读取Mongo历史数据，重复执行清洗与统计流程。
-5. 全流程自动化，无需人工整理，一键输出可视化图表与标准化分析报表。
+5. 一键式流程：用户输入品类后，自动完成爬取、清洗、分析、可视化、报表输出，无需人工整理中间数据。
 6. 区分正式数据库与测试数据库，自动化测试保障核心代码稳定。
 
 ## 后续迭代规划
@@ -131,7 +135,7 @@ pytest tests/ -v
 - 优化数据存储结构，构建分层数据表
 - 增加定时调度、日志规范化、完善异常重试策略
 - 优化报表导出逻辑，丰富Excel分析指标
-- 可选：接入Web服务，脱离本地GUI运行
+- 接入Web服务，脱离本地GUI运行
 
 ## 注意事项
 1. 项目仅用于Python爬虫与数据分析技术学习，禁止高频、大规模抓取目标网站数据。
